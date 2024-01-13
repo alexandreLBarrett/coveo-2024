@@ -1,11 +1,24 @@
+from typing import Tuple
+
 from game_message import *
 from actions import *
 import random
+from ai_crewmate import *
 
 
-class CrewMateDispatch:
-    def __init__(self):
-        pass
+class CrewmateDispatcher:
+    crewmates: Dict[str, Crewmate] = {}
+
+    def __init__(self, game_message: GameMessage):
+        for crewmate in game_message.ships.get(game_message.currentTeamId).crew:
+            self.crewmates[crewmate.id] = Crewmate(crewmate)
+
+    def update_crewmates(self, game_message: GameMessage):
+        for crewmate in game_message.ships.get(game_message.currentTeamId).crew:
+            if crewmate.id not in self.crewmates:
+                self.crewmates[crewmate.id] = Crewmate(crewmate)
+            else:
+                self.crewmates[crewmate.id].Update(crewmate)
 
     def get_stations_turrets(self, game_message: GameMessage) -> List[TurretStation]:
         team_id = game_message.currentTeamId
@@ -30,3 +43,6 @@ class CrewMateDispatch:
                     crewmate.id, station_to_move_to.stationPosition))
 
         return actions
+
+    def UpdateTasks(self, newTasks : Tuple[Crewmate, Crewmate, Crewmate, Crewmate]):
+        pass
