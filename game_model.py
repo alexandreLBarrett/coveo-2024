@@ -33,6 +33,14 @@ class GameModel:
     # Update tasks to do with priority
     # Call the dispatcher Update so that it chooses which crewmate to do a task
     def update(self, game_message: GameMessage):
+        for ship in game_message.ships.values():
+            if ship.teamId != game_message.currentTeamId:
+                self.known_ships_states[ship.teamId] = (game_message.currentTickNumber, ship)
+
+        for ship in self.known_ships_states.values():
+            if ship[0] > 100:
+                del self.known_ships_states[ship.teamId]
+                
         # figure out what should be done
         pass
 
