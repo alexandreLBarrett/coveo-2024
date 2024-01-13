@@ -19,6 +19,9 @@ class OrientShipTowardsTask(Task):
         return False, None
     
     def get_crewmate_target_id_distance(self, crew: CrewMember) -> CrewDistance:
+        if len(crew.distanceFromStations.helms) == 0:
+            return None
+
         stations = crew.distanceFromStations.helms
         stations = sorted(stations, key = lambda r1: r1.distance)
         return stations[0]

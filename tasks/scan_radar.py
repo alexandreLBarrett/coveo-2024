@@ -21,6 +21,9 @@ class ScanRadarTask(Task):
         return False, None
     
     def get_crewmate_target_id_distance(self, crew: CrewMember) -> CrewDistance:
+        if len(crew.distanceFromStations.radars) == 0:
+            return None
+
         radars = crew.distanceFromStations.radars
         radars = sorted(radars, key = lambda r1: r1.distance)
         return radars[0]

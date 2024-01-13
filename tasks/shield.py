@@ -20,6 +20,9 @@ class ShieldTask(Task):
 
     def get_crewmate_target_id_distance(self, crew: CrewMember) -> CrewDistance:
         shields = crew.distanceFromStations.shields
+        if len(shields) == 0:
+            return None
+        
         shields = sorted(shields, key = lambda r1: r1.distance)
         return shields[0]
 

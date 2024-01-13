@@ -23,6 +23,9 @@ class ShootN(Task):
         return False, None
 
     def get_crewmate_target_id_distance(self, crew: CrewMember) -> CrewDistance:
+        if len(crew.distanceFromStations.turrets) == 0:
+            return None
+
         if self.weaponType is None:
             turrets = sorted(crew.distanceFromStations.turrets, key=lambda r1: r1.distance)
             return turrets[0]

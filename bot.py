@@ -30,22 +30,7 @@ class Bot:
         return ship1.currentShield < ship2.currentShield
 
     # find ship if none targetted or current target doesn't exist anymore
-    def find_best_target(self, game_message: GameMessage):
-        if self.target_team != None:
-            if game_message.ships.get(self.target_team) != None:
-                return
-
-        other_ships = [ship for ship in game_message.ships.values() if ship.teamId != game_message.currentTeamId]
-
-        if len(other_ships) == 0:
-            return
-
-        other_ships = sorted(other_ships, key = lambda s: s.currentShield + s.currentHealth)
-
-        self.target_team = other_ships[0]
-
-        print("targetted known team's ship -> ", self.target_team)
-
+   
 
     def get_next_move(self, game_message: GameMessage):
         """

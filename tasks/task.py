@@ -15,7 +15,7 @@ class Task:
         pass
 
     @abc.abstractmethod
-    def get_crewmate_target_id_distance(self, crew: CrewMember) -> (int, str):
+    def get_crewmate_target_id_distance(self, crew: CrewMember) -> CrewDistance:
         # get all stations of target station type
         # get station closest to crew
         # return station position

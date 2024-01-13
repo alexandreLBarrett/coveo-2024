@@ -15,19 +15,25 @@ class GameModel:
     # ordered by priority
     queued_tasks: List[Tuple[Task]] = []
     known_ships_states: Dict[str, Tuple[int, Ship]] = {}
+    target_ship_pos: Ship
 
+    recon_expiry = 100
+    
+    def find_best_known_target(self) -> Ship:
+        other_ships = [ship[1] for ship in self.known_ships_states.values() if ship[0] < self.recon_expiry]
+        other_ships = sorted(other_ships, key = lambda s: s.currentShield + s.currentHealth)
+        return other_ships[0]
+    
     def find_closest_ship(self, our_ship: Ship, game_message: GameMessage) -> Vector:
-        other_ships = [ship for team_id, ship in game_message.shipsPositions.items(
-        ) if team_id != game_message.currentTeamId]
-        other_ships = sorted(other_ships, key=lambda s1: get_euclidian_distance(
-            our_ship.worldPosition, s1))
+        other_ships = [ship for team_id, ship in game_message.shipsPositions.items() if team_id != game_message.currentTeamId]
+        other_ships = sorted(other_ships, key=lambda s1: get_euclidian_distance(our_ship.worldPosition, s1))
         return other_ships[0]
 
     def __init__(self, game_message: GameMessage):
-        self.our_ship = game_message.ships.get(game_message.currentTeamId)
+        our_ship = game_message.ships.get(game_message.currentTeamId)
 
-        pos = self.find_closest_ship(self.our_ship, game_message)
-        self.queued_tasks.append(OrientShipTowardsTask(pos))
+        self.target_ship_pos = self.find_closest_ship(our_ship, game_message)
+        self.queued_tasks.append(OrientShipTowardsTask(self.target_ship_pos))
 
         # for team_id in game_message.shipsPositions.keys():
         #     if team_id != game_message.currentTeamId:
@@ -41,17 +47,38 @@ class GameModel:
     # Update tasks to do with priority
     # Call the dispatcher Update so that it chooses which crewmate to do a task
     def update(self, game_message: GameMessage):
+        our_ship = game_message.ships.get(game_message.currentTeamId)
+
+        # cleanup dead ships from state
+        for ship in self.known_ships_states.values():
+            if ship[1].teamId not in game_message.shipsPositions.keys():
+                if ship[1].worldPosition == self.target_ship_pos:
+                    self.target_ship_pos = None
+
+                del self.known_ships_states[ship[1].teamId]
+
+        # update known target with new info
         for ship in game_message.ships.values():
             if ship.teamId != game_message.currentTeamId:
                 self.known_ships_states[ship.teamId] = (
                     game_message.currentTickNumber, ship)
 
+        # if target is None find a new one
+        if self.target_ship_pos == None:
+            if len(self.known_ships_states) == 0:
+                self.target_ship_pos = self.find_closest_ship(our_ship, game_message)
+                self.queued_tasks.append(OrientShipTowardsTask(self.target_ship_pos))
+            else:
+                self.target_ship_pos = self.find_best_known_target().worldPosition
+                self.queued_tasks.append(OrientShipTowardsTask(self.target_ship_pos))
+
+        # rescan to refresh old data
         rescanIds = []
         for ship in self.known_ships_states.values():
-            if game_message.currentTickNumber - ship[0] > 100:
+            if game_message.currentTickNumber - ship[0] > self.recon_expiry:
                 rescanIds.append(ship[1].teamId)
 
-        if self.our_ship.currentShield < game_message.constants.ship.maxShield * 0.4:
+        if our_ship.currentShield < game_message.constants.ship.maxShield * 0.4:
             self.queued_tasks.append(ShieldTask())
 
         if len(rescanIds) != 0:

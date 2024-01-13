@@ -65,7 +65,7 @@ class CrewmateDispatcher:
             crew = find_crewmate_in_list(available_crewmates[j], game_message.ships[game_message.currentTeamId].crew)
             for i in range(len(newTasks)):
                 crew_dist = newTasks[i].get_crewmate_target_id_distance(crew)
-                if min_task_dist[0] == None or crew_dist.distance < min_task_dist[0].distance:
+                if crew_dist != None and min_task_dist[0] == None or crew_dist.distance < min_task_dist[0].distance:
                     min_task_dist = (crew_dist, newTasks[i])
 
             min_task_dist[1].set_station_id(min_task_dist[0].stationId)
