@@ -51,7 +51,8 @@ class CrewmateDispatcher:
     def get_available_crewmate_count(self) -> int:
         return len([task for task in self.crewmates.values() if task == None])
 
-    def schedule_task(self, newTasks: List[Task]):
+# We suppose the new tasks are in decreasing order of priority
+    def schedule_task(self, newTasks: List[Task], game_message: GameMessage):
         # assign tasks to available and most adequate crewmate
         available_crewmates = [crew_str for crew_str in self.crewmates if self.crewmates.get(crew_str) is None]
 
