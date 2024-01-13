@@ -5,11 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/application.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "PowerShell Launch Script",
             "type": "PowerShell",
             "request": "launch",
             "script": ".\\start.bat",
             "cwd": "${cwd}"
-        }
+        },
     ]
 }

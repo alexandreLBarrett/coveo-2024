@@ -1,11 +1,32 @@
+import csv
+import json
 from game_message import *
 from actions import *
 import random
 
 class Bot:
+    target_team: str
+
     def __init__(self):
         print("Initializing your super mega duper bot")
+        self.target_team = None
 
+    # find ship if none targetted or current target doesn't exist anymore
+    def find_best_target(self, game_message: GameMessage): 
+        if target_team != None:
+            if game_message.ships.get(target_team) != None:
+                return
+
+        other_ships = [ship for ship in game_message.ships if ship.teamId != game_message.currentTeamId]
+
+        if len(other_ships) == 0:
+            return
+
+        other_ships = sorted(other_ships, lambda a, b: a.currentShield < b.currentShield)
+
+        target_team = other_ships[0]
+
+        print("targetted -> ", target_team)
 
     def get_next_move(self, game_message: GameMessage):
         """
@@ -13,9 +34,13 @@ class Bot:
         """
         actions = []
 
+        self.find_best_target(game_message)
+
         team_id = game_message.currentTeamId
         my_ship = game_message.ships.get(team_id)
         other_ships_ids = [shipId for shipId in game_message.shipsPositions.keys() if shipId != team_id]
+
+        
 
         # Find who's not doing anything and try to give them a job?
         idle_crewmates = [crewmate for crewmate in my_ship.crew if crewmate.currentStation is None and crewmate.destination is None]
