@@ -14,6 +14,7 @@ class TaskType(Enum):
 
 @dataclass
 class Task:
+    # TODO: add more information here. eg: task priority
     taskType = TaskType.NONE
     stationId = ""
     position = Vector(0, 0)

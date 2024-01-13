@@ -1,10 +1,5 @@
 from typing import Tuple
-
-from game_message import *
-from actions import *
-import random
 from ai_crewmate import *
-
 
 class CrewmateDispatcher:
     crewmates: Dict[str, Crewmate] = {}
@@ -44,5 +39,6 @@ class CrewmateDispatcher:
 
         return actions
 
-    def UpdateTasks(self, newTasks : Tuple[Crewmate, Crewmate, Crewmate, Crewmate]):
+    def update_tasks(self, newTasks: Tuple[Task, Task, Task, Task]):
+        # TODO: implement
         pass

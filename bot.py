@@ -14,14 +14,14 @@ class Bot:
     target_team: str
     opponents_ships = Dict[str, Ship]
 
-    dispatcher : CrewmateDispatcher
-    model : GameModel
+    dispatcher: CrewmateDispatcher
+    model: GameModel
+
     def __init__(self):
         print("Initializing your super mega duper bot")
         self.target_team = None
         self.recon_crew = None
         self.opponents_ships = {}
-
     def compare_ship_hps(ship1: Ship, ship2: Ship) -> bool:
         if ship1.currentShield == ship2.currentShield:
             return ship1.currentHealth == ship2.currentHealth
@@ -50,33 +50,9 @@ class Bot:
         Here is where the magic happens, for now the moves are not very good. I bet you can do better ;)
         """
 
-        if self.exportCSVData:
-
-            if not os.path.exists("info/"):
-                os.mkdir("info")
-
-            f = open(f"info/export.csv", "w")
-            f.write("TurretType,MaxCharge,RocketBonusHullDamage,RocketBonusShieldDamage,RocketChargeCost,RocketDamage"
-                    ",RocketRadius,RocketSpeed,Rotatable\n")
-
-            turretInfos = game_message.constants.ship.stations.turretInfos
-            turrKeyList = list(turretInfos.keys())
-            for i in range(len(turretInfos.keys())):
-                f.write(
-                    f"{turrKeyList[i]},{turretInfos[turrKeyList[i]].maxCharge},{turretInfos[turrKeyList[i]].rocketBonusHullDamage},{turretInfos[turrKeyList[i]].rocketBonusShieldDamage},{turretInfos[turrKeyList[i]].rocketChargeCost},{turretInfos[turrKeyList[i]].rocketDamage},{turretInfos[turrKeyList[i]].rocketRadius},{turretInfos[turrKeyList[i]].rocketSpeed},{turretInfos[turrKeyList[i]].rotatable}\n")
-
-            f.write("ShieldBreakHandicap,ShieldRadius,ShieldRegenPercent\n")
-            shields = game_message.constants.ship.stations.shield
-            f.write(f"{shields.shieldBreakHandicap}, {shields.shieldRadius}, {shields.shieldRegenerationPercent}\n")
-
-            f.write("Radar Radius\n")
-            f.write(f"{game_message.constants.ship.stations.radar.radarRadius}\n")
-
-            f.write("Ship MaxHealth, MaxShield, MaxRotationDegs\n")
-            f.write(f"{game_message.constants.ship.maxHealth}, {game_message.constants.ship.maxShield},{game_message.constants.ship.maxRotationDegrees}\n")
-
-            f.close()
-            self.exportCSVData = False
+        self.model.update(game_message)
+        self.dispatcher.update_crewmates(game_message)
+        self.dispatcher.update_tasks(self.model.get_tasks())
 
         actions = []
 
@@ -96,7 +72,7 @@ class Bot:
         crew_mate_shooter = CrewmateDispatcher(game_message)
         action_goto_turrets = crew_mate_shooter.assign_crew_turret(game_message)
         actions += action_goto_turrets
-        
+
         # Now crew members at stations should do something!
         operatedTurretStations = [
             station for station in my_ship.stations.turrets if station.operator is not None]
@@ -123,7 +99,7 @@ class Bot:
             station for station in my_ship.stations.radars if station.operator is not None]
         for radar_station in operatedRadarStation:
             actions.append(RadarScanAction(radar_station.id,
-                           random.choice(other_ships_ids)))
+                                           random.choice(other_ships_ids)))
 
         # You can clearly do better than the random actions above! Have fun!
         return actions
