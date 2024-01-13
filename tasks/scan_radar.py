@@ -26,6 +26,6 @@ class ScanRadarTask(Task):
         if len(radars) == 0:
             return None
 
-        radars = sorted(radars, key = lambda r1: r1.distance and r1.stationId not in used_station_id)
+        radars = sorted(radars, key = lambda r1: r1.distance)
         return radars[0]
 

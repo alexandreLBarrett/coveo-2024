@@ -25,5 +25,5 @@ class OrientShipTowardsTask(Task):
         if len(helms) == 0:
             return None
 
-        helms = sorted(helms, key = lambda r1: r1.distance and r1.stationId not in used_station_id)
+        helms = sorted(helms, key = lambda r1: r1.distance)
         return helms[0]

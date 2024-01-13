@@ -12,12 +12,14 @@ class ShieldTask(Task):
     def get_action(self, game_message: GameMessage, crew: CrewMember):
         team_id = game_message.currentTeamId
         my_ship = game_message.ships.get(team_id)
-        if my_ship.currentShield < game_message.constants.ship.maxShield * 0.4:
-            for station in my_ship.stations.shields:
-                if station.operator is None:
-                    return False,  CrewMoveAction(crew.id, station.gridPosition)
+
+        if my_ship.currentShield > game_message.constants.ship.maxShield * 0.4:
+            return True, None
         
-        return True, None
+        if crew.destination == None:
+            return False,  CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))
+
+        return False, None
 
     def get_crewmate_target_id_distance(self, crew: CrewMember, used_station_id: List[str]) -> CrewDistance:
         shields = list(filter(lambda crewDist: crewDist.stationId not in used_station_id, crew.distanceFromStations.shields))

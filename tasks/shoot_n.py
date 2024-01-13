@@ -23,19 +23,24 @@ class ShootN(Task):
         return False, None
 
     def get_crewmate_target_id_distance(self, crew: CrewMember, used_station_id: List[str]) -> CrewDistance:
-        turrets = list(filter(lambda crewDist: crewDist.stationId not in used_station_id, crew.distanceFromStations.turrets))
-
-        if len(turrets) == 0:
-            return None
-
         if self.weaponType is None:
-            turrets = sorted(turrets, key=lambda r1: r1.distance and r1.stationId not in used_station_id)
+            turrets = list(filter(lambda crewDist: crewDist.stationId not in used_station_id, crew.distanceFromStations.turrets))
+
+            if len(turrets) == 0:
+                return None
+            
+            turrets = sorted(turrets, key=lambda r1: r1.distance)
             return turrets[0]
 
         valid_weapon_turrets = []
         for i in range(len(self.turrets)):
             if self.turrets[i].turretType == self.weaponType:
-                valid_weapon_turrets.append(turrets[i])
+                valid_weapon_turrets.append(crew.distanceFromStations.turrets[i])
 
-        valid_weapon_turrets = sorted(valid_weapon_turrets, key=lambda r1: r1.distance and r1.stationId not in used_station_id)
+        valid_weapon_turrets = list(filter(lambda crewDist: crewDist.stationId not in used_station_id, valid_weapon_turrets))
+
+        if len(valid_weapon_turrets) == 0:
+            return None
+
+        valid_weapon_turrets = sorted(valid_weapon_turrets, key=lambda r1: r1.distance)
         return valid_weapon_turrets[0]
