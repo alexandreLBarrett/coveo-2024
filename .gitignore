@@ -1,4 +1,14 @@
 __pycache__/
 
+<<<<<<< HEAD
 win-challenge-build/error.log
 /windows-x64/
+=======
+<<<<<<< Updated upstream
+win-challenge-build/error.log
+=======
+win-challenge-build/error.log
+/info/
+/windows-x64/
+>>>>>>> Stashed changes
+>>>>>>> deimos

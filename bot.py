@@ -127,7 +127,6 @@ class Bot:
 
         crew_mate_shooter = CrewmateDispatcher(game_message)
         action_goto_turrets = crew_mate_shooter.assign_crew_turret(game_message)
-
         actions += action_goto_turrets
         
         # Now crew members at stations should do something!

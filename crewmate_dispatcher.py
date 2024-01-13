@@ -38,7 +38,7 @@ class CrewmateDispatcher:
         for crewmate in my_ship.crew[1:]:
             if crewmate.currentStation is not turrets and crewmate.destination is None:
                 visitable_stations_turrets = crewmate.distanceFromStations.turrets
-                station_to_move_to = random.choice(visitable_stations_turrets)
+                station_to_move_to = visitable_stations_turrets[0]
                 actions.append(CrewMoveAction(
                     crewmate.id, station_to_move_to.stationPosition))
 
