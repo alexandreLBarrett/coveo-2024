@@ -3,7 +3,7 @@ import json
 import os
 from game_message import *
 from actions import *
-from crewmates_dispatch import *
+from crewmate_dispatcher import *
 import random
 
 
