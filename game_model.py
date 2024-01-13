@@ -38,4 +38,6 @@ class GameModel:
 
     # return the N most important tasks
     def get_important_tasks(self, n: int) -> List[Tuple[float, Task]]:
-        return self.queued_tasks[:n]
+        ret = self.queued_tasks[:n+1]
+        self.queued_tasks = self.queued_tasks[n+1:]
+        return ret
