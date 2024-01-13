@@ -22,7 +22,7 @@ class Bot:
         self.recon_crew = None
         self.opponents_ships = {}
         self.dispatcher = None
-        self.model = GameModel()
+        self.model = None
 
     def compare_ship_hps(ship1: Ship, ship2: Ship) -> bool:
         if ship1.currentShield == ship2.currentShield:
@@ -40,7 +40,7 @@ class Bot:
         if len(other_ships) == 0:
             return
 
-        other_ships = sorted(other_ships, self.compare_ship_hps)
+        other_ships = sorted(other_ships, key = lambda s: s.currentShield + s.currentHealth)
 
         self.target_team = other_ships[0]
 
@@ -51,6 +51,8 @@ class Bot:
         """
         Here is where the magic happens, for now the moves are not very good. I bet you can do better ;)
         """
+        if self.model == None:
+            self.model = GameModel(game_message)
 
         if self.dispatcher == None:
             self.dispatcher = CrewmateDispatcher(game_message)
