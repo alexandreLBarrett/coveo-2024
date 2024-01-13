@@ -41,9 +41,9 @@ class CrewmateDispatcher:
         for crewId, task in self.crewmates.items():
             if task is not None:
                 crewmate = find_crewmate_in_list(crewId, game_message.ships.get(game_message.currentTeamId).crew)
-                is_done, action = task.get_action(game_message, crewmate)
-                if action != None:
-                    actions.append(action)
+                is_done, action_list = task.get_action(game_message, crewmate)
+                if action_list is not None:
+                    actions += action_list
                 if is_done:
                     self.crewmates[crewId] = None
 

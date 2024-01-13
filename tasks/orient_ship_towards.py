@@ -12,10 +12,10 @@ class OrientShipTowardsTask(Task):
 
     def get_action(self, game_message: GameMessage, crew: CrewMember):
         if crew.gridPosition == get_station_position(game_message, self.station_id):
-            return True, ShipLookAtAction(self.target_position)
+            return True, [ShipLookAtAction(self.target_position)]
         
         if crew.destination == None:
-            return False, CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))
+            return False, [CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))]
         
         return False, None
     

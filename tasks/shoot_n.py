@@ -3,8 +3,10 @@ from game_message import *
 from station_util import *
 from tasks.task import *
 
+
 class ShootN(Task):
-    def __init__(self, target_position: Vector, shoot_count: int, turrets: List[TurretStation], weaponType: Optional[TurretType] = None):
+    def __init__(self, target_position: Vector, shoot_count: int, turrets: List[TurretStation],
+                 weaponType: Optional[TurretType] = None):
         self.target_position = target_position
         self.turrets = turrets
         self.shoot_count = shoot_count
@@ -12,13 +14,20 @@ class ShootN(Task):
 
     def get_action(self, game_message: GameMessage, crew: CrewMember):
         if crew.gridPosition == get_station_position(game_message, self.station_id):
+            actions = []
+            turret = get_turret_station(game_message, self.station_id)
+            if game_message.constants.ship.stations.turretInfos.get(turret.turretType).rotatable:
+                actions.append(TurretLookAtAction(stationId=self.station_id, target=self.target_position))
+
             if get_turret_station(game_message, self.station_id).charge < 0:
-                return False, None
+                return False, actions
+
             self.shoot_count -= 1
-            return self.shoot_count == 0, TurretShootAction(self.station_id)
+            actions.append(TurretShootAction(self.station_id))
+            return self.shoot_count == 0, actions
 
         if crew.destination is None:
-            return False, CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))
+            return False, [CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))]
 
         return False, None
 

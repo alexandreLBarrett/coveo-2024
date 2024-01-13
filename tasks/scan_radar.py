@@ -13,10 +13,10 @@ class ScanRadarTask(Task):
 
     def get_action(self, game_message: GameMessage, crew: CrewMember):
         if crew.gridPosition == get_station_position(game_message, self.station_id):
-            return (len(self.target_team) == 1), RadarScanAction(self.station_id, self.target_team.pop(0))
+            return (len(self.target_team) == 1), [RadarScanAction(self.station_id, self.target_team.pop(0))]
         
         if crew.destination == None:
-            return False, CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))
+            return False, [CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))]
         
         return False, None
     

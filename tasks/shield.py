@@ -15,9 +15,9 @@ class ShieldTask(Task):
 
         if my_ship.currentShield > game_message.constants.ship.maxShield * 0.4:
             return True, None
-        
+
         if crew.destination == None:
-            return False,  CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))
+            return False, [CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))]
 
         return False, None
 
