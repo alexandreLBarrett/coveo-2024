@@ -2,6 +2,7 @@ from typing import Dict, List, Tuple
 from station_util import find_closest_crew_for_station, find_closest_station
 from tasks.orient_ship_towards import OrientShipTowardsTask
 from tasks.scan_radar import ScanRadarTask
+from tasks.shield import ShieldTask
 from tasks.shoot_n import ShootN
 
 from tasks.task import Task
@@ -48,6 +49,7 @@ class GameModel:
 
         if len(rescanIds) != 0:
             self.queued_tasks.append(ScanRadarTask(rescanIds))
+            self.queued_tasks.append(ShieldTask())
 
 
 
