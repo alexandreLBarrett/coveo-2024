@@ -1,8 +1,12 @@
+import itertools
+import math
 from typing import Tuple
+
+from station_util import find_crewmate_in_list
 from tasks.task import *
 
 class CrewmateDispatcher:
-    crewmates: Dict[str, Task] = {}
+    crewmates: Dict[str, Optional[Task]] = {}
 
     def __init__(self, game_message: GameMessage):
         for crew in game_message.ships.get(game_message.currentTeamId).crew:
@@ -31,19 +35,35 @@ class CrewmateDispatcher:
                     crewmate.id, station_to_move_to.stationPosition))
 
         return actions
-    
+
     def get_actions(self, game_message: GameMessage):
         actions = []
         for crewId, task in self.crewmates.items():
-            if task != None:
+            if task is not None:
                 crewmate = next([crew for crew in game_message.ships.get(game_message.currentTeamId).crew if crew.id == crewId])
-                actions.append(task.get_action(game_message, crewmate))
-            
+                (is_done, action) = task.get_action(game_message, crewmate)
+                actions.append(action)
+                if is_done:
+                    self.crewmates[crewId] = None
+
         return actions
-    
+
     def get_available_crewmate_count(self) -> int:
         return len([task for task in self.crewmates.values() if task == None])
 
-    def schedule_task(self, newTasks: List[Task]):
+# We suppose the new tasks are in decreasing order of priority
+    def schedule_task(self, newTasks: List[Task], game_message: GameMessage):
         # assign tasks to available and most adequate crewmate
-        pass
+        available_crewmates = [crew_str for crew_str in self.crewmates if self.crewmates.get(crew_str) is None]
+
+        for j in range(len(available_crewmates)):
+            min_task_dist: Tuple[int, Optional[Task]] = (int(math.inf), None)
+            crew = find_crewmate_in_list(available_crewmates[j], game_message.ships[game_message.currentTeamId].crew)
+            for i in range(len(newTasks)):
+                (target_distance, target_station_index) = newTasks[i].get_crewmate_target_id_distance(crew)
+                if target_distance < min_task_dist[0]:
+                    min_task_dist = (target_distance, newTasks[i])
+
+            # TODO: setTaskStation
+            self.crewmates[crew.id] = min_task_dist[1]
+            newTasks.pop(newTasks.index(min_task_dist[1]))
