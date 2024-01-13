@@ -19,6 +19,6 @@ class GameModel:
         # figure out what should be done
         pass
 
-    def get_important_tasks(self, n: int) -> List[Task]:
-        # return the N most important tasks        
+    def get_important_tasks(self, n: int) -> List[Tuple[float, Task]]:
+        # return the N most important tasks
         return self.queued_tasks[:n]
