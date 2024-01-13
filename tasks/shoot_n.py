@@ -33,9 +33,9 @@ class ShootN(Task):
             return turrets[0]
 
         valid_weapon_turrets = []
-        for i in range(len(self.turrets)):
-            if self.turrets[i].turretType == self.weaponType:
-                valid_weapon_turrets.append(turrets[i])
+        for turret in self.turrets:
+            if turret.turretType == self.weaponType:
+                valid_weapon_turrets.append(turret)
 
         valid_weapon_turrets = sorted(valid_weapon_turrets, key=lambda r1: r1.distance and r1.stationId not in used_station_id)
         return valid_weapon_turrets[0]
