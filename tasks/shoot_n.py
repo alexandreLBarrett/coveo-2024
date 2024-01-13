@@ -42,9 +42,11 @@ class ShootN(Task):
             return turrets[0]
 
         valid_weapon_turrets = []
-        for i in range(len(self.turrets)):
-            if self.turrets[i].turretType == self.weaponType:
-                valid_weapon_turrets.append(crew.distanceFromStations.turrets[i])
+        for turret in self.turrets:
+            if turret.turretType == self.weaponType:
+                for crew_turret in crew.distanceFromStations.turrets:
+                    if crew_turret.stationId == turret.id:
+                            valid_weapon_turrets.append(turret.id)
 
         valid_weapon_turrets = list(filter(lambda crewDist: crewDist.stationId not in used_station_id, valid_weapon_turrets))
 
