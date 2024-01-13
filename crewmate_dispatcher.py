@@ -78,7 +78,7 @@ class CrewmateDispatcher:
                 print("TWO PEOPLE SHARE STATION")
                 pass
 
-            used_station_ids.append()
+            used_station_ids.append(min_task_dist[0].stationId)
             min_task_dist[1].set_station_id(min_task_dist[0].stationId)
             self.crewmates[crew.id] = min_task_dist[1]
             newTasks.pop(newTasks.index(min_task_dist[1]))

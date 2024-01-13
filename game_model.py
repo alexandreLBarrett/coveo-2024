@@ -46,6 +46,8 @@ class GameModel:
                 break
 
         if target_ship == None:
+            self.queued_tasks.append(ShootN(self.target_ship_pos, 5,
+                                            game_message.ships.get(game_message.currentTeamId).stations.turrets))
             return
 
         target_shield = target_ship.currentShield
@@ -54,18 +56,9 @@ class GameModel:
         if (target_shield > game_message.constants.ship.maxShield * 0.2):
             self.queued_tasks.append(ShootN(target_ship.worldPosition, 10,
                                             game_message.ships.get(game_message.currentTeamId).stations.turrets, TurretType.EMP))
-
-        if (self.get_shooter_count() > 2):
-            return
-
-        if (target_shield < game_message.constants.ship.maxShield * 0.35):
-            self.queued_tasks.append(ShootN(target_ship.worldPosition, 5,
-                                            game_message.ships.get(game_message.currentTeamId).stations.turrets,TurretType.Normal))
         else:
             self.queued_tasks.append(ShootN(target_ship.worldPosition, 5,
-                                            game_message.ships.get(game_message.currentTeamId).stations.turrets,
-                                     TurretType.EMP))
-        pass
+                                            game_message.ships.get(game_message.currentTeamId).stations.turrets))
 
     def __init__(self, game_message: GameMessage):
         our_ship = game_message.ships.get(game_message.currentTeamId)
@@ -120,9 +113,8 @@ class GameModel:
 
         if len(rescanIds) != 0:
             self.queued_tasks.append(ScanRadarTask(rescanIds))
-            self.queued_tasks.append(ShieldTask())
 
-        if self.get_shooter_count() < 2:
+        while len(self.queued_tasks) < 4:
             self.queue_attacks(game_message)
 
         # figure out what should be done
