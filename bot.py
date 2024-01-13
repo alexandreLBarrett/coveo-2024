@@ -1,9 +1,12 @@
 import csv
 import json
 import os
+
+import crewmate_dispatcher
+from game_model import GameModel
 from game_message import *
 from actions import *
-from crewmates_dispatch import *
+from crewmate_dispatcher import *
 import random
 
 
@@ -13,6 +16,8 @@ class Bot:
     opponents_ships = Dict[str, Ship]
     recon_crew: str
 
+    dispatcher : CrewmateDispatcher
+    model : GameModel
     def __init__(self):
         print("Initializing your super mega duper bot")
         self.target_team = None
@@ -21,16 +26,16 @@ class Bot:
     def find_recon_crew(self, ship: Ship):
         if self.recon_crew != None:
             return
-        
+
         idle_crewmates = [crewmate for crewmate in ship.crew if crewmate.currentStation is None and crewmate.destination is None]
 
-        if len(idle_crewmates) == 0: 
+        if len(idle_crewmates) == 0:
             print("No crewmates available for recon")
 
         self.recon_crew = idle_crewmates[0]
 
     def find_recon_station(self, ship: Ship, crew_member: CrewMember) -> Vector:
-        
+
 
 
 
@@ -61,7 +66,7 @@ class Bot:
 
         if self.recon_crew == None:
             self.find_recon_crew(our_ship)
-        
+
         crew_member = next(crew for crew in our_ship.crew if crew.id != self.recon_crew)
 
         action = CrewMoveAction()
@@ -119,7 +124,7 @@ class Bot:
         other_ships_ids = [
             shipId for shipId in game_message.shipsPositions.keys() if shipId != team_id]
 
-        crew_mate_shooter = CrewMateDispatch()
+        crew_mate_shooter = CrewmateDispatcher(game_message)
         action_goto_turrets = crew_mate_shooter.assign_crew_turret(game_message)
 
         actions += action_goto_turrets
