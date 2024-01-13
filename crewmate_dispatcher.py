@@ -33,7 +33,13 @@ class CrewmateDispatcher:
         return actions
     
     def get_actions(self, game_message: GameMessage):
-        return [task.get_action(game_message) for task in self.crewmates.values() if task != None]
+        actions = []
+        for crewId, task in self.crewmates.items():
+            if task != None:
+                crewmate = next([crew for crew in game_message.ships.get(game_message.currentTeamId).crew if crew.id == crewId])
+                actions.append(task.get_action(game_message, crewmate))
+            
+        return actions
     
     def get_available_crewmate_count(self) -> int:
         return len([task for task in self.crewmates.values() if task == None])
