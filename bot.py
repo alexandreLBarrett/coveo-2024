@@ -11,22 +11,27 @@ class Bot:
         print("Initializing your super mega duper bot")
         self.target_team = None
 
+    def compare_ship_hps(ship1: Ship, ship2: Ship) -> bool:
+        if ship1.currentShield == ship2.currentShield:
+            return ship1.currentHealth == ship2.currentHealth
+        return ship1.currentShield < ship2.currentShield
+
     # find ship if none targetted or current target doesn't exist anymore
     def find_best_target(self, game_message: GameMessage): 
-        if target_team != None:
-            if game_message.ships.get(target_team) != None:
+        if self.target_team != None:
+            if game_message.ships.get(self.target_team) != None:
                 return
 
-        other_ships = [ship for ship in game_message.ships if ship.teamId != game_message.currentTeamId]
+        other_ships = [ship for ship in game_message.ships.values() if ship.teamId != game_message.currentTeamId]
 
         if len(other_ships) == 0:
             return
 
-        other_ships = sorted(other_ships, lambda a, b: a.currentShield < b.currentShield)
+        other_ships = sorted(other_ships, self.compare_ship_hps)
 
-        target_team = other_ships[0]
+        self.target_team = other_ships[0]
 
-        print("targetted -> ", target_team)
+        print("targetted known team's ship -> ", self.target_team)
 
     def get_next_move(self, game_message: GameMessage):
         """
