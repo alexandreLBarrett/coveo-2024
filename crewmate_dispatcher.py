@@ -57,6 +57,8 @@ class CrewmateDispatcher:
         # assign tasks to available and most adequate crewmate
         available_crewmates = [crew_str for crew_str in self.crewmates if self.crewmates.get(crew_str) is None]
 
+        used_station_ids = [task.station_id for task in self.crewmates.values() if task != None]
+
         for j in range(len(available_crewmates)):
             if len(newTasks) == 0:
                 break
@@ -64,9 +66,12 @@ class CrewmateDispatcher:
             min_task_dist: Tuple[CrewDistance, Optional[Task]] = (None, None)
             crew = find_crewmate_in_list(available_crewmates[j], game_message.ships[game_message.currentTeamId].crew)
             for i in range(len(newTasks)):
-                crew_dist = newTasks[i].get_crewmate_target_id_distance(crew)
-                if crew_dist != None and min_task_dist[0] == None or crew_dist.distance < min_task_dist[0].distance:
+                crew_dist = newTasks[i].get_crewmate_target_id_distance(crew, used_station_ids)
+                if crew_dist != None and (min_task_dist[0] == None or crew_dist.distance < min_task_dist[0].distance):
                     min_task_dist = (crew_dist, newTasks[i])
+
+            if (min_task_dist[0] == None or min_task_dist[1] == None):
+                continue
 
             min_task_dist[1].set_station_id(min_task_dist[0].stationId)
             self.crewmates[crew.id] = min_task_dist[1]

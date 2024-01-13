@@ -20,11 +20,12 @@ class ScanRadarTask(Task):
         
         return False, None
     
-    def get_crewmate_target_id_distance(self, crew: CrewMember) -> CrewDistance:
-        if len(crew.distanceFromStations.radars) == 0:
+    def get_crewmate_target_id_distance(self, crew: CrewMember, used_station_id: List[str]) -> CrewDistance:
+        radars = list(filter(lambda crewDist: crewDist.stationId not in used_station_id, crew.distanceFromStations.radars))
+
+        if len(radars) == 0:
             return None
 
-        radars = crew.distanceFromStations.radars
-        radars = sorted(radars, key = lambda r1: r1.distance)
+        radars = sorted(radars, key = lambda r1: r1.distance and r1.stationId not in used_station_id)
         return radars[0]
 

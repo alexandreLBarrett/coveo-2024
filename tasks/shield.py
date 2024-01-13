@@ -1,3 +1,4 @@
+from typing import List
 from game_message import CrewDistance, CrewMember, GameMessage
 from station_util import get_station_position
 from tasks.task import Task
@@ -18,8 +19,9 @@ class ShieldTask(Task):
         
         return True, None
 
-    def get_crewmate_target_id_distance(self, crew: CrewMember) -> CrewDistance:
-        shields = crew.distanceFromStations.shields
+    def get_crewmate_target_id_distance(self, crew: CrewMember, used_station_id: List[str]) -> CrewDistance:
+        shields = list(filter(lambda crewDist: crewDist.stationId not in used_station_id, crew.distanceFromStations.shields))
+
         if len(shields) == 0:
             return None
         
