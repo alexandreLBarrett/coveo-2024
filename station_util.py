@@ -1,5 +1,6 @@
 from actions import CrewMoveAction
-from game_message import CrewDistance, CrewMember, GameMessage, Ship, Vector
+from game_message import CrewDistance, CrewMember, GameMessage, Ship, Vector, Station, TurretStation
+
 
 def find_closest_station(crew_member: CrewMember, station_name: str) -> CrewDistance:
     stations = crew_member.distanceFromStations[station_name]
@@ -38,3 +39,17 @@ def get_station_position(game_message: GameMessage, station_id: str) -> Vector:
     stations = our_ship.stations.helms + our_ship.stations.radars + our_ship.stations.shields  + our_ship.stations.turrets
     
     return [station.gridPosition for station in stations if station.id == station_id][0]
+
+def get_station(game_message: GameMessage, station_id: str) -> Station:
+    our_ship = game_message.ships.get(game_message.currentTeamId)
+
+    stations = our_ship.stations.helms + our_ship.stations.radars + our_ship.stations.shields + our_ship.stations.turrets
+
+    return [station for station in stations if station.id == station_id][0]
+
+def get_turret_station(game_message: GameMessage, station_id: str) -> TurretStation:
+    our_ship = game_message.ships.get(game_message.currentTeamId)
+
+    stations = our_ship.stations.turrets
+
+    return [station for station in stations if station.id == station_id][0]
