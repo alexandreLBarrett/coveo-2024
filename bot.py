@@ -6,33 +6,16 @@ from actions import *
 from crewmates_dispatch import *
 import random
 
-
 class Bot:
     exportCSVData: bool = True
     target_team: str
     opponents_ships = Dict[str, Ship]
-    recon_crew: str
 
     def __init__(self):
         print("Initializing your super mega duper bot")
         self.target_team = None
         self.recon_crew = None
-
-    def find_recon_crew(self, ship: Ship):
-        if self.recon_crew != None:
-            return
-        
-        idle_crewmates = [crewmate for crewmate in ship.crew if crewmate.currentStation is None and crewmate.destination is None]
-
-        if len(idle_crewmates) == 0: 
-            print("No crewmates available for recon")
-
-        self.recon_crew = idle_crewmates[0]
-
-    def find_recon_station(self, ship: Ship, crew_member: CrewMember) -> Vector:
-        
-
-
+        self.opponents_ships = {}
 
     def compare_ship_hps(ship1: Ship, ship2: Ship) -> bool:
         if ship1.currentShield == ship2.currentShield:
@@ -56,19 +39,6 @@ class Bot:
 
         print("targetted known team's ship -> ", self.target_team)
 
-    def send_unit_to_radar(self, game_message: GameMessage) -> CrewMoveAction:
-        our_ship: Ship = game_message.ships.get(game_message.currentTeamId)
-
-        if self.recon_crew == None:
-            self.find_recon_crew(our_ship)
-        
-        crew_member = next(crew for crew in our_ship.crew if crew.id != self.recon_crew)
-
-        action = CrewMoveAction()
-        action.crewMemberId = self.recon_crew
-        action.destination = self.find_recon_station(crew_member, our_ship)
-
-        return crew_member
 
     def get_next_move(self, game_message: GameMessage):
         """
@@ -109,10 +79,9 @@ class Bot:
             if ship.teamId != game_message.currentTeamId:
                 self.opponents_ships[ship.teamId] = ship.teamId
 
+        # if we have discovered all other ships
         if len(self.opponents_ships) == len(game_message.shipsPositions) - 1:
             self.find_best_target(game_message)
-        else:
-            actions.append(self.send_unit_to_radar(game_message))
 
         team_id = game_message.currentTeamId
         my_ship = game_message.ships.get(team_id)
