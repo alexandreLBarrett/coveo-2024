@@ -30,7 +30,7 @@ class Bot:
         self.recon_crew = idle_crewmates[0]
 
     def find_recon_station(self, ship: Ship, crew_member: CrewMember) -> Vector:
-        
+        pass
 
 
 
@@ -109,10 +109,11 @@ class Bot:
             if ship.teamId != game_message.currentTeamId:
                 self.opponents_ships[ship.teamId] = ship.teamId
 
-        if len(self.opponents_ships) == len(game_message.shipsPositions) - 1:
-            self.find_best_target(game_message)
-        else:
-            actions.append(self.send_unit_to_radar(game_message))
+        # TypeError: object of type '_GenericAlias' has no len()
+        # if len(self.opponents_ships) == len(game_message.shipsPositions) - 1:
+        #     self.find_best_target(game_message)
+        # else:
+        #     actions.append(self.send_unit_to_radar(game_message))
 
         team_id = game_message.currentTeamId
         my_ship = game_message.ships.get(team_id)
