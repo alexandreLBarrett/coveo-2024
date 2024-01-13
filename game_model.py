@@ -17,22 +17,27 @@ class GameModel:
     known_ships_states: Dict[str, Tuple[int, Ship]] = {}
 
     def find_closest_ship(self, our_ship: Ship, game_message: GameMessage) -> Vector:
-        other_ships = [ship for team_id, ship in game_message.shipsPositions.items() if team_id != game_message.currentTeamId]
-        other_ships = sorted(other_ships, key = lambda s1: get_euclidian_distance(our_ship.worldPosition, s1))
+        other_ships = [ship for team_id, ship in game_message.shipsPositions.items(
+        ) if team_id != game_message.currentTeamId]
+        other_ships = sorted(other_ships, key=lambda s1: get_euclidian_distance(
+            our_ship.worldPosition, s1))
         return other_ships[0]
 
     def __init__(self, game_message: GameMessage):
-        our_ship = game_message.ships.get(game_message.currentTeamId)
+        self.our_ship = game_message.ships.get(game_message.currentTeamId)
 
-        pos = self.find_closest_ship(our_ship, game_message)
+        pos = self.find_closest_ship(self.our_ship, game_message)
         self.queued_tasks.append(OrientShipTowardsTask(pos))
 
         # for team_id in game_message.shipsPositions.keys():
         #     if team_id != game_message.currentTeamId:
-        self.queued_tasks.append(ScanRadarTask([team_id for team_id in game_message.shipsPositions.keys() if team_id != game_message.currentTeamId]))
+        self.queued_tasks.append(ScanRadarTask(
+            [team_id for team_id in game_message.shipsPositions.keys() if team_id != game_message.currentTeamId]))
 
-        self.queued_tasks.append(ShootN(-1, game_message.ships.get(game_message.currentTeamId).stations.turrets))
-        self.queued_tasks.append(ShootN(-1, game_message.ships.get(game_message.currentTeamId).stations.turrets))
+        self.queued_tasks.append(
+            ShootN(-1, game_message.ships.get(game_message.currentTeamId).stations.turrets))
+        self.queued_tasks.append(
+            ShootN(-1, game_message.ships.get(game_message.currentTeamId).stations.turrets))
 
     #  Todo : add think logic here
     # Update tasks to do with priority
@@ -40,18 +45,19 @@ class GameModel:
     def update(self, game_message: GameMessage):
         for ship in game_message.ships.values():
             if ship.teamId != game_message.currentTeamId:
-                self.known_ships_states[ship.teamId] = (game_message.currentTickNumber, ship)
+                self.known_ships_states[ship.teamId] = (
+                    game_message.currentTickNumber, ship)
 
         rescanIds = []
         for ship in self.known_ships_states.values():
             if game_message.currentTickNumber - ship[0] > 100:
                 rescanIds.append(ship[1].teamId)
 
-        if len(rescanIds) != 0:
-            self.queued_tasks.append(ScanRadarTask(rescanIds))
+        if self.our_ship.currentShield < game_message.constants.ship.maxShield * 0.4:
             self.queued_tasks.append(ShieldTask())
 
-
+        if len(rescanIds) != 0:
+            self.queued_tasks.append(ScanRadarTask(rescanIds))
 
         # figure out what should be done
         pass

@@ -4,10 +4,9 @@ from tasks.task import Task
 from actions import CrewMoveAction, RadarScanAction
 
 class ShieldTask(Task):
-    target_team: str
 
-    def __init__(self, target_team: str):
-        self.target_team = target_team
+    def __init__(self):
+        pass
 
     def get_action(self, game_message: GameMessage, crew: CrewMember):
         team_id = game_message.currentTeamId
@@ -18,4 +17,9 @@ class ShieldTask(Task):
                     return False,  CrewMoveAction(crew.id, station.gridPosition)
         
         return True, None
+
+    def get_crewmate_target_id_distance(self, crew: CrewMember) -> CrewDistance:
+        shields = crew.distanceFromStations.shields
+        shields = sorted(shields, key = lambda r1: r1.distance)
+        return shields[0]
 
