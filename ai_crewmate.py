@@ -6,9 +6,9 @@ from enum import Enum
 
 class TaskType(Enum):
     NONE = 0
-    TURRET = 1
-    SHIELD = 2
-    REPAIR = 3
+    HELM = 1
+    TURRET = 2
+    SHIELD = 3
     RADAR = 4
 
 
