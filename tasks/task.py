@@ -3,11 +3,12 @@ import abc
 from game_message import *
 from actions import *
 
+
 class Task:
     station_id: str
 
-    def set_station_id(self, id: str):
-        self.station_id = id
+    def set_station_id(self, station_id: str):
+        self.station_id = station_id
 
     @abc.abstractmethod
     def get_action(self, game_message: GameMessage, crew: CrewMember):
@@ -23,4 +24,3 @@ class Task:
     @abc.abstractmethod
     def get_station_type(self) -> str:
         pass
-
