@@ -6,7 +6,7 @@ from tasks.shield import ShieldTask
 from tasks.shoot_n import ShootN
 
 from tasks.task import Task
-from game_message import GameMessage, Ship, Vector
+from game_message import GameMessage, Ship, Vector, TurretType
 from world_info import get_euclidian_distance
 
 
@@ -18,16 +18,54 @@ class GameModel:
     target_ship_pos: Ship
 
     recon_expiry = 100
-    
+
     def find_best_known_target(self) -> Ship:
         other_ships = [ship[1] for ship in self.known_ships_states.values() if ship[0] < self.recon_expiry]
         other_ships = sorted(other_ships, key = lambda s: s.currentShield + s.currentHealth)
         return other_ships[0]
-    
+
     def find_closest_ship(self, our_ship: Ship, game_message: GameMessage) -> Vector:
-        other_ships = [ship for team_id, ship in game_message.shipsPositions.items() if team_id != game_message.currentTeamId]
+        other_ships = [ship for team_id, ship in game_message.shipsPositions.items() if
+                       team_id != game_message.currentTeamId]
         other_ships = sorted(other_ships, key=lambda s1: get_euclidian_distance(our_ship.worldPosition, s1))
         return other_ships[0]
+
+    def get_shooter_count(self):
+        shootTaskCount = 0
+        for task in self.queued_tasks:
+            if isinstance(task, ShootN):
+                shootTaskCount += 1
+        return shootTaskCount
+
+    def queue_attacks(self, game_message: GameMessage):
+        target_ship = None
+
+        for ship in game_message.ships.values():
+            if ship.worldPosition == self.target_ship_pos:
+                target_ship = ship
+                break
+
+        if target_ship == None:
+            return
+
+        target_shield = target_ship.currentShield
+        target_health = target_ship.currentHealth
+
+        if (target_shield > game_message.constants.ship.maxShield * 0.2):
+            self.queued_tasks.append(ShootN(target_ship.worldPosition, 10,
+                                            game_message.ships.get(game_message.currentTeamId).stations.turrets, TurretType.EMP))
+
+        if (self.get_shooter_count() > 2):
+            return
+
+        if (target_shield < game_message.constants.ship.maxShield * 0.35):
+            self.queued_tasks.append(ShootN(target_ship.worldPosition, 5,
+                                            game_message.ships.get(game_message.currentTeamId).stations.turrets,TurretType.Normal))
+        else:
+            self.queued_tasks.append(ShootN(target_ship.worldPosition, 5,
+                                            game_message.ships.get(game_message.currentTeamId).stations.turrets,
+                                     TurretType.EMP))
+        pass
 
     def __init__(self, game_message: GameMessage):
         our_ship = game_message.ships.get(game_message.currentTeamId)
@@ -40,8 +78,7 @@ class GameModel:
         self.queued_tasks.append(ScanRadarTask(
             [team_id for team_id in game_message.shipsPositions.keys() if team_id != game_message.currentTeamId]))
 
-        self.queued_tasks.append(ShootN(Vector(0, 0), -1, game_message.ships.get(game_message.currentTeamId).stations.turrets))
-        self.queued_tasks.append(ShootN(Vector(0, 0), -1, game_message.ships.get(game_message.currentTeamId).stations.turrets))
+        self.queue_attacks(game_message)
 
     #  Todo : add think logic here
     # Update tasks to do with priority
@@ -83,12 +120,16 @@ class GameModel:
 
         if len(rescanIds) != 0:
             self.queued_tasks.append(ScanRadarTask(rescanIds))
+            self.queued_tasks.append(ShieldTask())
+
+        if self.get_shooter_count() < 2:
+            self.queue_attacks(game_message)
 
         # figure out what should be done
         pass
 
     # return the N most important tasks
     def get_important_tasks(self, n: int) -> List[Tuple[Task]]:
-        ret = self.queued_tasks[:n+1]
-        self.queued_tasks = self.queued_tasks[n+1:]
+        ret = self.queued_tasks[:n + 1]
+        self.queued_tasks = self.queued_tasks[n + 1:]
         return ret
