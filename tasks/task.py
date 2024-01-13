@@ -3,6 +3,6 @@ from actions import *
 from enum import Enum
 
 class Task:
-    def get_action(game_message: GameMessage, crew: CrewMember):
+    def get_action(self, game_message: GameMessage, crew: CrewMember):
 
         pass
