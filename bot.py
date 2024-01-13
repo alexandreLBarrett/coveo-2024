@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 from game_message import *
 from actions import *
 from crewmates_dispatch import *
@@ -42,6 +43,10 @@ class Bot:
         """
 
         if self.exportCSVData:
+
+            if not os.path.exists("info/"):
+                os.mkdir("info")
+
             f = open(f"info/export.csv", "w")
             f.write("TurretType,MaxCharge,RocketBonusHullDamage,RocketBonusShieldDamage,RocketChargeCost,RocketDamage"
                     ",RocketRadius,RocketSpeed,Rotatable\n")
