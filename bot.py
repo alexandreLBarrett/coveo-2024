@@ -2,17 +2,16 @@ import csv
 import json
 import os
 
-import crewmate_dispatcher
+from crewmate_dispatcher import CrewmateDispatcher
 from game_model import GameModel
 from game_message import *
 from actions import *
-from crewmate_dispatcher import *
+from tasks.task import *
 import random
 
 class Bot:
     exportCSVData: bool = True
     target_team: str
-    opponents_ships = Dict[str, Ship]
 
     dispatcher: CrewmateDispatcher
     model: GameModel
@@ -22,6 +21,9 @@ class Bot:
         self.target_team = None
         self.recon_crew = None
         self.opponents_ships = {}
+        self.dispatcher = None
+        self.model = GameModel()
+
     def compare_ship_hps(ship1: Ship, ship2: Ship) -> bool:
         if ship1.currentShield == ship2.currentShield:
             return ship1.currentHealth == ship2.currentHealth
@@ -50,9 +52,12 @@ class Bot:
         Here is where the magic happens, for now the moves are not very good. I bet you can do better ;)
         """
 
+        if self.dispatcher == None:
+            self.dispatcher = CrewmateDispatcher(game_message)
+
         self.model.update(game_message)
-        self.dispatcher.update_crewmates(game_message)
-        self.dispatcher.update_tasks(self.model.get_tasks())
+        self.dispatcher.schedule_task(self.model.get_important_tasks(self.dispatcher.get_available_crewmate_count()))
+        return self.dispatcher.get_actions(game_message)
 
         actions = []
 

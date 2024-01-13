@@ -1,19 +1,12 @@
 from typing import Tuple
-from ai_crewmate import *
+from tasks.task import *
 
 class CrewmateDispatcher:
-    crewmates: Dict[str, Crewmate] = {}
+    crewmates: Dict[str, Task] = {}
 
     def __init__(self, game_message: GameMessage):
-        for crewmate in game_message.ships.get(game_message.currentTeamId).crew:
-            self.crewmates[crewmate.id] = Crewmate(crewmate)
-
-    def update_crewmates(self, game_message: GameMessage):
-        for crewmate in game_message.ships.get(game_message.currentTeamId).crew:
-            if crewmate.id not in self.crewmates:
-                self.crewmates[crewmate.id] = Crewmate(crewmate)
-            else:
-                self.crewmates[crewmate.id].Update(crewmate)
+        for crew in game_message.ships.get(game_message.currentTeamId).crew:
+            self.crewmates[crew.id] = None
 
     def get_stations_turrets(self, game_message: GameMessage) -> List[TurretStation]:
         team_id = game_message.currentTeamId
@@ -38,7 +31,13 @@ class CrewmateDispatcher:
                     crewmate.id, station_to_move_to.stationPosition))
 
         return actions
+    
+    def get_actions(self, game_message: GameMessage):
+        return [task.get_action(game_message) for task in self.crewmates.values() if task != None]
+    
+    def get_available_crewmate_count(self) -> int:
+        return len([task for task in self.crewmates.values() if task == None])
 
-    def update_tasks(self, newTasks: Tuple[Task, Task, Task, Task]):
-        # TODO: implement
+    def schedule_task(self, newTasks: List[Task]):
+        # assign tasks to available and most adequate crewmate
         pass
