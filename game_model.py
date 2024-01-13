@@ -34,10 +34,8 @@ class GameModel:
         self.queued_tasks.append(ScanRadarTask(
             [team_id for team_id in game_message.shipsPositions.keys() if team_id != game_message.currentTeamId]))
 
-        self.queued_tasks.append(
-            ShootN(-1, game_message.ships.get(game_message.currentTeamId).stations.turrets))
-        self.queued_tasks.append(
-            ShootN(-1, game_message.ships.get(game_message.currentTeamId).stations.turrets))
+        self.queued_tasks.append(ShootN(Vector(0, 0), -1, game_message.ships.get(game_message.currentTeamId).stations.turrets))
+        self.queued_tasks.append(ShootN(Vector(0, 0), -1, game_message.ships.get(game_message.currentTeamId).stations.turrets))
 
     #  Todo : add think logic here
     # Update tasks to do with priority
