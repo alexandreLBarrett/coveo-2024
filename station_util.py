@@ -9,7 +9,10 @@ def find_closest_station(crew_member: CrewMember, station_name: str) -> CrewDist
 def compare_closest_to_station(crew1: CrewMember, crew2: CrewMember, station_name: str):
     distance1: CrewDistance = find_closest_station(crew1, station_name)
     distance2: CrewDistance = find_closest_station(crew2, station_name)
-    return distance1 < distance2
+    return distance1.distance < distance2.distance
+
+def find_crewmate_in_list(crewStr: str, crewList) -> CrewMember:
+    return [crew for crew in crewList if crew.id == crewStr][0]
 
 def move_crew_to_closest_station(self, crew: CrewMember, station_name: str) -> (CrewMoveAction, CrewDistance):
     closest_station = find_closest_station(crew, station_name)
