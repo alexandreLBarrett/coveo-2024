@@ -4,13 +4,16 @@ from station_util import *
 from tasks.task import *
 
 class ShootN(Task):
-    def __init__(self, shoot_count: int, turrets: List[TurretStation], weaponType: Optional[TurretType] = None):
+    def __init__(self, target_position: Vector, shoot_count: int, turrets: List[TurretStation], weaponType: Optional[TurretType] = None):
+        self.target_position = target_position
         self.turrets = turrets
         self.shoot_count = shoot_count
         self.weaponType = weaponType
 
     def get_action(self, game_message: GameMessage, crew: CrewMember):
         if crew.gridPosition == get_station_position(game_message, self.station_id):
+            if get_turret_station(game_message, self.station_id).charge < 0:
+                return False, None
             self.shoot_count -= 1
             return self.shoot_count == 0, TurretShootAction(self.station_id)
 
