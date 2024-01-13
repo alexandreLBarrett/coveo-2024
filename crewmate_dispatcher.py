@@ -65,11 +65,11 @@ class CrewmateDispatcher:
 
             min_task_dist: Tuple[CrewDistance, Optional[Task]] = (None, None)
             crew = find_crewmate_in_list(available_crewmates[j], game_message.ships[game_message.currentTeamId].crew)
-            for i in range(len(newTasks)):
-                crew_dist = newTasks[i].get_crewmate_target_id_distance(crew, used_station_ids)
+            for task in newTasks:
+                crew_dist = task.get_crewmate_target_id_distance(crew, used_station_ids)
                 if crew_dist != None and  crew_dist is not None and hasattr(crew_dist, 'distance'):
                     if crew_dist != None and (min_task_dist[0] == None or crew_dist.distance < min_task_dist[0].distance):
-                        min_task_dist = (crew_dist, newTasks[i])
+                        min_task_dist = (crew_dist, task)
 
             if (min_task_dist[0] == None or min_task_dist[1] == None):
                 continue
