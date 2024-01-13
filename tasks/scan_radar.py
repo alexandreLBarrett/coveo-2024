@@ -1,17 +1,19 @@
+from typing import List
+
 from game_message import CrewDistance, CrewMember, GameMessage
 from station_util import get_station_position
 from tasks.task import Task
 from actions import CrewMoveAction, RadarScanAction
 
 class ScanRadarTask(Task):
-    target_team: str
+    target_team: List[str]
 
-    def __init__(self, target_team: str):
+    def __init__(self, target_team : List[str]):
         self.target_team = target_team
 
     def get_action(self, game_message: GameMessage, crew: CrewMember):
         if crew.gridPosition == get_station_position(game_message, self.station_id):
-            return True, RadarScanAction(self.station_id, self.target_team)
+            return (len(self.target_team) == 1), RadarScanAction(self.station_id, self.target_team.pop(0))
         
         if crew.destination == None:
             return False, CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))
