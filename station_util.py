@@ -3,7 +3,7 @@ from game_message import CrewDistance, CrewMember, GameMessage, Ship, Vector
 
 def find_closest_station(crew_member: CrewMember, station_name: str) -> CrewDistance:
     stations = crew_member.distanceFromStations[station_name]
-    stations.sort(lambda r1, r2: r1.distance < r2.distance)
+    stations = sorted(stations, lambda r1: r1.distance)
     return stations[0]
 
 def compare_closest_to_station(crew1: CrewMember, crew2: CrewMember, station_name: str):

@@ -1,4 +1,4 @@
-from game_message import CrewMember, GameMessage, Vector
+from game_message import CrewDistance, CrewMember, GameMessage, Vector
 from station_util import get_station_position
 from tasks.task import Task
 from actions import CrewMoveAction, ShipLookAtAction
@@ -10,15 +10,15 @@ class OrientShipTowardsTask(Task):
         self.target_position = target_position
 
     def get_action(self, game_message: GameMessage, crew: CrewMember):
-        if crew.gridPosition == get_station_position(self.station_id):
-            action = ShipLookAtAction()
-            action.target = self.target_position
-            return True, action
+        if crew.gridPosition == get_station_position(game_message, self.station_id):
+            return True, ShipLookAtAction(self.target_position)
         
         if crew.destination == None:
-            action = CrewMoveAction()
-            action.crewMemberId = crew.id
-            action.destination = get_station_position(self.station_id)
-            return False, action
+            return False, CrewMoveAction(crew.id, get_station_position(game_message, self.station_id))
         
         return False, None
+    
+    def get_crewmate_target_id_distance(self, crew: CrewMember) -> CrewDistance:
+        stations = crew.distanceFromStations.helms
+        stations = sorted(stations, key = lambda r1: r1.distance)
+        return stations[0]

@@ -58,7 +58,7 @@ class Bot:
             self.dispatcher = CrewmateDispatcher(game_message)
 
         self.model.update(game_message)
-        self.dispatcher.schedule_task(self.model.get_important_tasks(self.dispatcher.get_available_crewmate_count()))
+        self.dispatcher.schedule_task(self.model.get_important_tasks(self.dispatcher.get_available_crewmate_count()), game_message)
         return self.dispatcher.get_actions(game_message)
 
         actions = []
